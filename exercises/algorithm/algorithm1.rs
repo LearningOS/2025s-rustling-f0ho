@@ -2,7 +2,7 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
+
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -70,13 +70,67 @@ impl<T> LinkedList<T> {
         }
     }
 	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
+    where 
+        T: PartialOrd,
 	{
 		//TODO
-		Self {
+        let mut ans = Self {
             length: 0,
             start: None,
             end: None,
+        };
+        let mut cur;
+        let mut cur1 = list_a.start;
+        let mut cur2 = list_b.start;
+
+        match (list_a.start, list_b.start){
+            (Some(ptr1), Some(ptr2)) => {
+                unsafe{
+                    if (*ptr1.as_ptr()).val < (*ptr2.as_ptr()).val {
+                        ans.start = list_a.start;
+                        cur1 = (*ptr1.as_ptr()).next;
+                    }else{
+                        ans.start = list_b.start;
+                        cur2 = (*ptr2.as_ptr()).next;
+                    }
+                }
+                cur = ans.start;
+                ans.end = cur;
+            }
+            (Some(_), None) => return list_a,
+            (None, Some(_)) => return list_b,
+            (None, None) => return ans,
         }
+
+        while let (Some(ptr1), Some(ptr2)) = (cur1, cur2){
+            unsafe {
+                if (*ptr1.as_ptr()).val < (*ptr2.as_ptr()).val {
+                    (*cur.unwrap().as_ptr()).next = cur1;
+                    cur1 = (*ptr1.as_ptr()).next;
+                }else{
+                    (*cur.unwrap().as_ptr()).next = cur2;
+                    cur2 = (*ptr2.as_ptr()).next;
+                }
+                cur = (*cur.unwrap().as_ptr()).next;
+            }
+        }
+
+        if let Some(_) = cur1{
+            ans.end = list_a.end;
+            unsafe{
+                (*cur.unwrap().as_ptr()).next = cur1;
+            }
+        }
+
+        if let Some(_) = cur2{
+            ans.end = list_b.end;
+            unsafe{
+                (*cur.unwrap().as_ptr()).next = cur2;
+            }
+        }
+
+        ans.length = list_a.length + list_b.length;
+		ans
 	}
 }
 

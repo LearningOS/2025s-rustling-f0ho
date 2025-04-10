@@ -2,7 +2,7 @@
 	heap
 	This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
+
 
 use std::cmp::Ord;
 use std::default::Default;
@@ -23,7 +23,7 @@ where
     pub fn new(comparator: fn(&T, &T) -> bool) -> Self {
         Self {
             count: 0,
-            items: vec![T::default()],
+            items: vec![],//删除默认元素
             comparator,
         }
     }
@@ -37,6 +37,18 @@ where
     }
 
     pub fn add(&mut self, value: T) {
+        self.items.push(value);
+        let mut index = self.count;
+        self.count += 1;
+        while index > 0 {
+            if (self.comparator)(&self.items[index], &self.items[index / 2]){
+                self.items.swap(index, index / 2);
+            }else{
+                break
+            }
+            index /= 2;
+        }
+        
         //TODO
     }
 
@@ -45,11 +57,11 @@ where
     }
 
     fn children_present(&self, idx: usize) -> bool {
-        self.left_child_idx(idx) <= self.count
+        self.left_child_idx(idx) < self.count
     }
 
     fn left_child_idx(&self, idx: usize) -> usize {
-        idx * 2
+        idx * 2 + 1
     }
 
     fn right_child_idx(&self, idx: usize) -> usize {
@@ -57,8 +69,14 @@ where
     }
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
-        //TODO
-		0
+        if idx * 2 + 2 < self.len(){
+            if (self.comparator)(&self.items[idx * 2 + 1], &self.items[idx * 2 + 2]){
+                return idx * 2 + 1
+            }else{
+                return idx * 2 + 2
+            }
+        }
+        idx * 2 + 1
     }
 }
 
@@ -85,6 +103,27 @@ where
 
     fn next(&mut self) -> Option<T> {
         //TODO
+        if !self.is_empty(){
+            self.count -= 1;
+            self.items.swap(0, self.count);
+            let x = self.items.remove(self.count);
+            let mut index = 0;
+            while index < self.count{
+                let mut best = index;
+                if best * 2 + 1 < self.count{
+                    best = self.smallest_child_idx(index);
+                }
+                if (self.comparator)(&self.items[index], &self.items[best]){
+                    best = index;
+                }
+                if best == index {
+                    break
+                }
+                self.items.swap(best, index);
+                index = best;
+            }
+            return Some(x)
+        }
 		None
     }
 }

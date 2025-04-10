@@ -1,0 +1,1 @@
+fn(_) -> Result<u8, <u8 as std::convert::TryFrom<_>>::Error> {<u8 as std::convert::TryFrom<_>>::try_from}
